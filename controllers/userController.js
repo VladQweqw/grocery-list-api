@@ -1,5 +1,5 @@
 const User = require('../models/user')
-const Grocery = require('../models/grocery')
+const GroceryList = require('../models/grocery')
 
 function handleErrors(err) {
     const errors = { email: "", password: "" }
@@ -52,8 +52,8 @@ function user_details_get(req, res) {
     
     User.findById(user_id).populate({
         path: "lists",
-        model: Grocery,
-        
+        model: GroceryList,
+        strictPopulate: false,
     })
     .then((result) => {
         const { email, nickname, _id, createdAt, lists } = result

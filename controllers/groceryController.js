@@ -1,6 +1,8 @@
 const Grocery = require('../models/grocery')
 const User = require('../models/user')
 
+const mongoose = require('mongoose')
+
 function lists_get(req, res) {
     Grocery.find().populate({
         path: "user",
@@ -20,10 +22,17 @@ function lists_get(req, res) {
     })
 }
 
-function lists_post(req, res) {
-    const list = new Grocery(req.body)
+async function lists_post(req, res) {
+    const grocery_list = await Grocery.create(req.body)
+    
+    await User.findByIdAndUpdate(req.body.user,
+       {
+          $push: {
+             lists: grocery_list._id
+          }
+       });
 
-    list.save()
+    grocery_list.save()
     .then((result) => {
         res.json({
             detail: "List created"

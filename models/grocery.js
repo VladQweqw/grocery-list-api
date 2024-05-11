@@ -11,8 +11,9 @@ const GrocerySchema = new Schema({
         type: String,
     }],
     user: {
-        type: Schema.ObjectId,
-        ref: "User",
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        required: true,
     }
 }, {
     timestamps: true

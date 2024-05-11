@@ -22,8 +22,8 @@ const UserSchema = new Schema({
         minlength: [6, 'Password is too short']
     },
     lists: [{
-        type: Schema.ObjectId,
-        ref: 'GroceryList'
+        type: Schema.Types.ObjectId,
+        ref: 'list'
     }]
 
 }, {
@@ -49,6 +49,7 @@ UserSchema.statics.login = async function(email, password) {
 
     throw Error('Incorrect Email')
 }
+
 
 const User = mongoose.model('user', UserSchema)
 module.exports = User
