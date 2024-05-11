@@ -1,8 +1,17 @@
 const User = require('../models/user')
 const GroceryList = require('../models/grocery')
 
+const jwt = require('jsonwebtoken')
+
 function handleErrors(err) {
     const errors = { email: "", password: "" }
+    if(err.message === 'Incorrect Password') {
+        errors.password = err.message
+    }
+
+    if(err.message === 'Incorrect Email') {
+        errors.email = err.message
+    }
 
     if(err.code === 11000) {
         errors.email = 'Email already exists'
@@ -15,6 +24,13 @@ function handleErrors(err) {
     }
 
     return errors
+}
+
+const maxAge = 3 * 24 * 60 * 60 // days hours minutes seconds
+function createToken(id) {
+    jwt.sign({ id }, "monkey banana", {
+        expiresIn: maxAge
+    })
 }
 
 async function user_register_post(req, res) {
@@ -39,12 +55,40 @@ async function user_register_post(req, res) {
     }
 }
 
-function user_login_post(req, res) {
-    
+async function user_login_post(req, res) {
+    const { email, password } = req.body
+    console.log(email, password);
+    try {
+        const created_user = await User.login(email, password);
+        const token = createToken(created_user._id)
+
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            maxAge: maxAge * 1000
+        })
+
+        res.status(200).json({
+            detail: "User logged in",
+            user: created_user._id
+        })
+    }
+    catch(err) {
+        const errors = handleErrors(err)
+        res.status(400).json({
+            error: errors
+        })
+    }
+
 }
 
-function user_logout(req, res) {
-    
+function user_logout_get(req, res) {
+    res.cookie('jwt', '', {
+        maxAge: 1
+    })
+
+    res.json({
+        detail: "User logged out"
+    })
 }
 
 function user_details_get(req, res) {
@@ -119,7 +163,7 @@ function user_update_put(req, res) {
 module.exports = {
     user_register_post,
     user_login_post,
-    user_logout,
+    user_logout_get,
     user_details_get,
     user_delete,
     user_update_put

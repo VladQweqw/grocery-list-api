@@ -19,5 +19,6 @@ const GrocerySchema = new Schema({
     timestamps: true
 })
 
+
 const GroceryList = mongoose.model('list', GrocerySchema)
 module.exports = GroceryList

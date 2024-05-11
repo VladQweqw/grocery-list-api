@@ -10,6 +10,6 @@ router.get('/user/:id', userController.user_details_get)
 router.delete('/user/:id', userController.user_delete)
 router.put('/user/:id', userController.user_update_put)
 
-router.post('/logout', userController.user_logout)
+router.get('/logout', userController.user_logout_get)
 
 module.exports = router
