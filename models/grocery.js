@@ -8,7 +8,17 @@ const GrocerySchema = new Schema({
         unique: true
     },
     list: [{
-        type: String,
+        type: {
+            name: {
+                type: String,
+                required: [true, 'Please add an name'],
+                unique: true,
+            },
+            isChecked: {
+                type: Boolean,
+                required: [true, 'Please choose the state']
+            }
+        },
     }],
     user: {
         type: Schema.Types.ObjectId,

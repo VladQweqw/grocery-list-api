@@ -28,8 +28,13 @@ function handleErrors(err) {
 
 const maxAge = 3 * 24 * 60 * 60 // days hours minutes seconds
 function createToken(id) {
-    jwt.sign({ id }, "monkey banana", {
-        expiresIn: maxAge
+    return new Promise((resolve, reject) => {
+        jwt.sign({ id }, "monkey banana", {
+            expiresIn: maxAge
+        }, function(err, token2) {
+            if(err) reject(err)
+            else resolve(token2)
+        })
     })
 }
 
@@ -57,19 +62,25 @@ async function user_register_post(req, res) {
 
 async function user_login_post(req, res) {
     const { email, password } = req.body
-    console.log(email, password);
+
     try {
-        const created_user = await User.login(email, password);
-        const token = createToken(created_user._id)
+        const user = await User.login(email, password);
+        const token = await createToken(user._id)
 
         res.cookie('jwt', token, {
-            httpOnly: true,
-            maxAge: maxAge * 1000
+            httpOnly: false,
+            maxAge: maxAge * 1000,
         })
+        
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); // If needed
+        res.setHeader('Access-Control-Allow-Credentials', true); // If needed
 
         res.status(200).json({
             detail: "User logged in",
-            user: created_user._id
+            user: user._id,
+            token,
         })
     }
     catch(err) {

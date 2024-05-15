@@ -22,18 +22,27 @@ mongoose.connect(dbUri)
 })
 
 const corsOptions = {
-    origin: 'http://localhost:3001',
+    origin: [
+        'http://localhost:3000', 
+        'http://localhost:3001', 
+        'http://192.168.1.69:3000',
+        'http://192.168.1.69:3001'
+    ],
+    credentials: true,
     optionsSuccessStatus: 200,
+    'Access-Control-Allow-Credentials': true,
+    'Access-Control-Allow-Headers': true,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE'
 }
 
-app.get('*', cors(corsOptions))
-app.post('*', cors(corsOptions))
 
 
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.static('public'))
 app.use(express.json())
 
+app.get('*', cors(corsOptions))
+app.post('*', cors(corsOptions))
 
 
 app.use('/', groceryRoutes)
