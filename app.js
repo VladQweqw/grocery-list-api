@@ -4,6 +4,7 @@ const groceryRoutes = require('./routes/groceryRoutes')
 const userRoutes = require('./routes/userRoutes')
 
 const cors = require('cors')
+const verifyToken = require('./middleware/authMiddleware')
 
 const dbUri = "mongodb+srv://vladpoienariu:A6zPN6fsPpTxRls7@lists.5vhezvm.mongodb.net/grocery-list?retryWrites=true&w=majority&appName=lists";
 
@@ -44,6 +45,12 @@ app.use(express.json())
 app.get('*', cors(corsOptions))
 app.post('*', cors(corsOptions))
 
+// check jwt token for frontend Hook
+app.get('/jwt', verifyToken, (req, res) => {
+    res.json({
+        'detail': "Jwt verified"
+    })
+})
 
 app.use('/', groceryRoutes)
 app.use('/', userRoutes)
