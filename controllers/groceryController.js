@@ -1,7 +1,8 @@
 const Grocery = require('../models/grocery')
 const User = require('../models/user')
+const Item = require('../models/item')
 
-const mongoose = require('mongoose')
+const { create_items, remove_items } = require('../controllers/itemsController')
 
 function lists_get(req, res) {
     Grocery.find().populate({
@@ -9,12 +10,17 @@ function lists_get(req, res) {
         select: "nickname email",
         model: User,
     })
+    .populate({
+        path: "list",
+        model: Item
+    })
     .then((result) => {
         res.json({
             data: result
         })
     })
     .catch((err) => {
+        console.log(err);
         res.status(400).json({
             error: err
         })
@@ -22,30 +28,38 @@ function lists_get(req, res) {
 }
 
 async function lists_post(req, res) {
-    const grocery_list = await Grocery.create(req.body)
+    
+    const grocery_items = {
+        title: req.body.title,
+        list: [],
+        user: req.body.user,
+    }
+    
+    const grocery_list = await Grocery.create(grocery_items)
+    await create_items(req.body.list, grocery_list._id)
     
     if(!req.body.user) {
         res.json({
             'error': "Invalid userID"
         })
     }
-
+    
     try {
         await User.findByIdAndUpdate(req.body.user,
-       {
-          $push: {
-            lists: grocery_list._id
-          }
-       });
-    }
-    catch(err) {
-        res.json({
+            {
+                $push: {
+                    lists: grocery_list._id
+                }
+            });
+        }
+        catch(err) {
+            res.json({
             'error': "Invalid userID"
         })
     }
 
-
     grocery_list.save()
+    
     .then((result) => {
         res.json({
             detail: "List created"
@@ -58,29 +72,44 @@ async function lists_post(req, res) {
     })
 }
 
-function list_detail_get(req, res) {
-    const list_id = req.params.id
+ function list_detail_get(req, res) {
+     const list_id = req.params.id
     
-    Grocery.findById(list_id).populate({
-        path: "user",
-        select: "nickname email",
-        model: User,
+     Grocery.findById(list_id)
+     .populate({
+         path: "user",
+         select: "nickname email",
+         model: User,
+     })
+     .populate({
+        path: "list",
+        model: Item
     })
-    .then((result) => {
-        console.log(result);
-        res.json({
-            data: result
-        })
-    })
-    .catch((err) => {
-        res.json({
-            error: 'Invalid ID'
+     .then((result) => {
+         console.log(result);
+         
+         res.json({
+             data: result
+         })
+     })
+     .catch((err) => {
+         res.json({
+             error: 'Invalid ID'
         })
     })
 }
 
-function list_delete_delete(req, res) {
+async function list_delete_delete(req, res) {
     const list_id = req.params.id
+
+    try {
+        await remove_items(list_id)
+    }
+    catch(err) {
+        res.json({
+            error: "Invalid ID"
+        })
+    }
 
     Grocery.findByIdAndDelete(list_id)
     .then((result) => {
@@ -104,42 +133,27 @@ function list_update_put(req, res) {
         })
     } 
 
-    Grocery.findByIdAndUpdate(list_id, req.body)
-    .then((result) => {
-        res.json({
-            detail: "List updated"
-        })
-    })
-    .catch((err) => {
+
+    try {
+        update_items(list_id, req.body)
+    }
+    catch(err) {
         res.json({
             error: 'Invalid ID'
         })
-    })
+    }
 
 }
 
 async function list_item_check_toggle_put(req, res) {
-    const list_id = req.body.list_id
     const item_id = req.body.item_id
     const state = req.body.state
     
-    Grocery.findById(list_id)
+    Item.findByIdAndUpdate(item_id, {isChecked: state})
     .then((result) => {
-        const list_item = result.list.find((item) => item._id.toString() === item_id);
-        list_item.isChecked = state
-
-        Grocery.findByIdAndUpdate(list_id, result)
-        .then((result) => {
-            res.json({
-                detail: `List item updated to ${state}`
-            })
+        res.json({
+            detail: `Item updated to ${state}`
         })
-        .catch((err) => {
-            res.json({
-                error: "Invalid list ID"
-            })
-        })    
-
     })
     .catch((err) => {
         res.json({

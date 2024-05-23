@@ -1,5 +1,6 @@
 const User = require('../models/user')
 const GroceryList = require('../models/grocery')
+const Item = require('../models/item')
 
 const jwt = require('jsonwebtoken')
 
@@ -71,15 +72,18 @@ async function user_login_post(req, res) {
             httpOnly: false,
             maxAge: maxAge * 1000,
         })
-        
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); // If needed
-        res.setHeader('Access-Control-Allow-Credentials', true); // If needed
+
+        const filter_user = {
+            _id: user._id,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            email: user.email,
+            nickname: user.nickname
+        }
 
         res.status(200).json({
             detail: "User logged in",
-            user: user._id,
+            user: filter_user,
             token,
         })
     }
@@ -105,10 +109,14 @@ function user_logout_get(req, res) {
 function user_details_get(req, res) {
     const user_id = req.params.id
     
-    User.findById(user_id).populate({
+    User.findById(user_id)
+    .populate({
         path: "lists",
         model: GroceryList,
-        strictPopulate: false,
+        populate: {
+            path: "list",
+            model: Item
+        },
     })
     .then((result) => {
         const { email, nickname, _id, createdAt, lists } = result

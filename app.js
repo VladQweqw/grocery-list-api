@@ -10,13 +10,16 @@ const dbUri = "mongodb+srv://vladpoienariu:A6zPN6fsPpTxRls7@lists.5vhezvm.mongod
 
 const app = express()
 const PORT = 3000
+const domain = '192.168.1.69'
 
 
 mongoose.connect(dbUri)
 .then((result) => {
-    app.listen(PORT)
+    app.listen(PORT, domain)
 
     console.log(`Succesfully connected to DB`);
+    console.log(`Server started at http://${domain}:${PORT}`);
+
 })
 .catch((err) => {
     console.log(`Error while connecting to DB: ${err}`);
@@ -27,7 +30,9 @@ const corsOptions = {
         'http://localhost:3000', 
         'http://localhost:3001', 
         'http://192.168.1.69:3000',
-        'http://192.168.1.69:3001'
+        'http://192.168.1.69:3001',
+        domain + ':3000',
+        domain + ":3001"
     ],
     credentials: true,
     optionsSuccessStatus: 200,

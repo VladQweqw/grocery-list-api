@@ -5,20 +5,11 @@ const GrocerySchema = new Schema({
     title: {
         type: String,
         required: [true, 'Please choose a title'],
-        unique: true
+        // unique: true
     },
     list: [{
-        type: {
-            name: {
-                type: String,
-                required: [true, 'Please add an name'],
-                unique: true,
-            },
-            isChecked: {
-                type: Boolean,
-                required: [true, 'Please choose the state']
-            }
-        },
+        type: Schema.Types.ObjectId,
+        ref: 'item',
     }],
     user: {
         type: Schema.Types.ObjectId,
