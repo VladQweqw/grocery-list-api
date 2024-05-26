@@ -15,10 +15,10 @@ const domain = '192.168.1.69'
 
 mongoose.connect(dbUri)
 .then((result) => {
-    app.listen(PORT, domain)
+    app.listen()
 
     console.log(`Succesfully connected to DB`);
-    console.log(`Server started at http://${domain}:${PORT}`);
+    // console.log(`Server started at http://${domain}:${PORT}`);
 
 })
 .catch((err) => {
