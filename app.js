@@ -15,7 +15,7 @@ const domain = '192.168.1.69'
 
 mongoose.connect(dbUri)
 .then((result) => {
-    app.listen()
+    app.listen(PORT)
 
     console.log(`Succesfully connected to DB`);
     // console.log(`Server started at http://${domain}:${PORT}`);
@@ -58,7 +58,7 @@ app.get('/jwt', verifyToken, (req, res) => {
 })
 
 app.get('/check', (req, res) => {
-    return res.json({
+    return res.status(200).json({
         status: 200
     })
 })
