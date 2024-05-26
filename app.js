@@ -57,5 +57,12 @@ app.get('/jwt', verifyToken, (req, res) => {
     })
 })
 
+app.get('/check', (req, res) => {
+    return res.json({
+        status: 200
+    })
+})
+
+
 app.use('/', groceryRoutes)
 app.use('/', userRoutes)
