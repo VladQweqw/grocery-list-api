@@ -5,6 +5,8 @@ const Item = require('../models/item')
 const { create_items, remove_items } = require('../controllers/itemsController')
 
 function lists_get(req, res) {
+    const reverse = Boolean(req.query.reverse);
+    
     Grocery.find().populate({
         path: "user",
         select: "nickname email",
@@ -16,7 +18,7 @@ function lists_get(req, res) {
     })
     .then((result) => {
         res.json({
-            data: result
+            data: reverse ? result.reverse() : result
         })
     })
     .catch((err) => {

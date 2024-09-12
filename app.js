@@ -6,7 +6,7 @@ const userRoutes = require('./routes/userRoutes')
 const cors = require('cors')
 const verifyToken = require('./middleware/authMiddleware')
 
-const dbUri = "mongodb+srv://vladpoienariu:A6zPN6fsPpTxRls7@lists.5vhezvm.mongodb.net/grocery-list?retryWrites=true&w=majority&appName=lists";
+const dbUri = "mongodb+srv://vladpoienariu:admin123@lists.5vhezvm.mongodb.net/grocery-list?retryWrites=true&w=majority&appName=lists";
 
 const app = express()
 const PORT = 3000
@@ -18,7 +18,7 @@ mongoose.connect(dbUri)
     app.listen(PORT)
 
     console.log(`Succesfully connected to DB`);
-    // console.log(`Server started at http://${domain}:${PORT}`);
+    console.log(`Server started at http://${domain}:${PORT}`);
 
 })
 .catch((err) => {
