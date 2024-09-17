@@ -148,7 +148,10 @@ async function list_update_put(req, res) {
                 }            
                 try {                
                     item.origin_list = list_id;
-                    if(!item._id) {
+                    
+                    console.log(item, item._id.startsWith('NUL'));
+                    if(!item._id || item._id.startsWith('NUL')) {
+                        delete item._id;
                         const list_item = await Item.create(item);
                         new_list.push(list_item)
                     }else {
@@ -161,7 +164,7 @@ async function list_update_put(req, res) {
 
                          
                         }
-                        catch(err) {
+                        catch(err) {                            
                             return res.status(400).json({
                                 error: `Invalid item ID / error when Update`
                             })
