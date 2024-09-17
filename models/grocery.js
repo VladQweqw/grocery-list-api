@@ -17,7 +17,7 @@ const GrocerySchema = new Schema({
         required: true,
     }
 }, {
-    timestamps: true
+    timestamps: true,
 })
 
 

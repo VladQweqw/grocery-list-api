@@ -126,25 +126,86 @@ async function list_delete_delete(req, res) {
     })
 }
 
-function list_update_put(req, res) {
-    const list_id = req.params.id
-
-    if(Object.keys(req.body).length === 0) {
-        res.status(400).json({
-            error: 'No data provided'
+async function list_update_put(req, res) {
+    const list_id = req.params.id;
+    
+    if(req.body.length === 0) {
+        return res.status(400).json({
+            error: "No data provided"
         })
     } 
-
-
+    
     try {
-        update_items(list_id, req.body)
+        const new_list = []
+        const grocery_list = await Grocery.findById(list_id);        
+
+        try {
+            for(const item of req.body) {
+                if(!item.name || typeof(item.isChecked) !== 'boolean') {
+                    return res.status(400).json({
+                        error: 'Data provided is incorrect'
+                    })
+                }            
+                try {                
+                    item.origin_list = list_id;
+                    if(!item._id) {
+                        const list_item = await Item.create(item);
+                        new_list.push(list_item)
+                    }else {
+                        try {
+                            await Item.findOneAndUpdate({
+                                _id: item._id,
+                            }, {
+                                name: item.name
+                            });
+
+                         
+                        }
+                        catch(err) {
+                            return res.status(400).json({
+                                error: `Invalid item ID / error when Update`
+                            })
+                        }
+
+                        new_list.push(item._id)
+                    }
+                }
+                catch(err) {
+                    return res.status(400).json({
+                        error: 'Cannot create item'
+                    })
+                }
+            }    
+        }
+        catch(err) {
+            return res.status(201).json({
+                error: `Data must be an array`
+            })
+        }
+        
+        try {            
+            await grocery_list.updateOne({
+                $set: {
+                    list: new_list
+                }
+            })
+        }
+        catch(err) {
+            return res.status(201).json({
+                error: `Error when saving content`
+            })
+        }
     }
     catch(err) {
-        res.json({
-            error: 'Invalid ID'
+        return res.status(400).json({
+            error: 'Invalid list ID'
         })
     }
+    
 
+    return res.status(201).json({
+        error: `List has now ${req.body.length} items`
+    })
 }
 
 async function list_item_check_toggle_put(req, res) {
