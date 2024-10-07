@@ -6,6 +6,7 @@ const { create_items, remove_items } = require('../controllers/itemsController')
 
 function lists_get(req, res) {
     const reverse = Boolean(req.query.reverse);
+    if(reverse == 'false') reverse = false;
     
     Grocery.find().populate({
         path: "user",
